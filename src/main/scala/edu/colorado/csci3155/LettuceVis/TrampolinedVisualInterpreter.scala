@@ -180,8 +180,11 @@ object TrampolinedVisualInterpreter {
             TrampolineApplyKont(newStuff ++ klst)
         }
         case TrampolineApplyKont(lst) => {
-            applyKontinuation(lst)
-            //nextState(newState)
+            val newState = applyKontinuation(lst)
+            newState match {
+                case TrampolineInterpreterRunning(_, _, _) => nextState(newState)
+                case _ => newState
+            }
         }
 
         case TrampolineInterpreterDone(v) => TrampolineInterpreterDone(v)
