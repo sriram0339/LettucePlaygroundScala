@@ -114,6 +114,7 @@ object CanvasRenderTest extends SimpleSwingApplication {
             println("---------")
             val expr = TestPrograms.parseAndInterpretProgram(txt)
             canvas.setAST(expr)
+            button3.enabled=false
             canvas.repaint()
         }
 
@@ -121,18 +122,22 @@ object CanvasRenderTest extends SimpleSwingApplication {
             contents += new MenuItem(Action("Program1"){
                 //execProgram("Program1", TestPrograms.test1)
                 textArea.text = TestPrograms.test1()
+                execTextAreaProgram()
             })
             contents += new MenuItem(Action("Program2"){
                 //execProgram("Program2", TestPrograms.test2)
                 textArea.text = TestPrograms.test2()
+                execTextAreaProgram()
             })
             contents += new MenuItem(Action("Program3"){
                 //execProgram("Program3", TestPrograms.test3)
                 textArea.text = TestPrograms.test3()
+                execTextAreaProgram()
             })
             contents += new MenuItem(Action("Program4"){
                 //execProgram("Program4", TestPrograms.test4)
                 textArea.text = TestPrograms.test4()
+                execTextAreaProgram()
             })
 
             contents += new MenuItem(Action("Program5"){
@@ -145,6 +150,7 @@ object CanvasRenderTest extends SimpleSwingApplication {
                       |   ) in
                       |       x - y * y
                     """.stripMargin
+                execTextAreaProgram()
             })
 
             contents += new MenuItem(Action("XtoGrind"){
@@ -159,6 +165,7 @@ object CanvasRenderTest extends SimpleSwingApplication {
                     |       ) in
                     |         x - y * y
                   """.stripMargin
+                execTextAreaProgram()
             })
 
         }

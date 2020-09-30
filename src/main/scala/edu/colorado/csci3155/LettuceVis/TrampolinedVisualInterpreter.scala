@@ -20,7 +20,7 @@ case class VisualExtendEnvRec(f: String, param: String, r: VisualAST,  eHat: Let
 
 
 sealed trait Kontinuation
-case class KDone(v: Value) extends Kontinuation
+case class KDone(v: Value, rDone: VisualAST, prevEnv: LettuceEnvironment) extends Kontinuation
 case class KEvalExpr(r: VisualAST, env: LettuceEnvironment) extends Kontinuation
 case class KFun1 ( fun: Value => List[Kontinuation]) extends Kontinuation
 
@@ -28,7 +28,7 @@ case class KFun1 ( fun: Value => List[Kontinuation]) extends Kontinuation
 sealed trait TrampolineVisualInterpreterState
 case class TrampolineInterpreterRunning (r: VisualAST, env: LettuceEnvironment, kList: List[Kontinuation]) extends TrampolineVisualInterpreterState
 case class TrampolineInterpreterDone(v: Value) extends TrampolineVisualInterpreterState
-
+case class TrampolineApplyKont(lst: List[Kontinuation]) extends TrampolineVisualInterpreterState
 
 
 object TrampolinedVisualInterpreter {
@@ -40,21 +40,21 @@ object TrampolinedVisualInterpreter {
         def doBinOp(fun: Value => Value => Value ): List[Kontinuation] = {
             List( KEvalExpr(r.getFirst, env), // First eval argument # 1
                 KFun1( v1 => List(KEvalExpr(r.getSecond, env), // Next eval argument # 2
-                    KFun1( v2 => List( KDone(fun (v1) (v2 ) ) ) ) // Finally, add them
+                    KFun1( v2 => List( KDone(fun (v1) (v2 ) , r, env) ) ) // Finally, add them
                 ))
             )
         }
 
         def doUnOp(fun: Value => Value ): List[Kontinuation] = {
             List( KEvalExpr(r.getFirst, env),
-                KFun1( v1 => List(KDone( fun(v1))))
+                KFun1( v1 => List(KDone( fun(v1), r, env)))
             )
         }
 
         expr match {
-            case ConstNum(f) => List(KDone(NumValue(f)))
+            case ConstNum(f) => List(KDone(NumValue(f), r, env))
             case Ident(s) => {
-                List(KDone(env.lookup(s)))
+                List(KDone(env.lookup(s), r, env ))
             }
             case Plus(_, _) => {
                 doBinOp(LettuceValue.plus)
@@ -83,7 +83,7 @@ object TrampolinedVisualInterpreter {
             case And(_, _) => { // Implement the short circuiting
                 List(KEvalExpr(r.getFirst, env), // First evaluate the first subexpression
                     KFun1({ // case match on the outcome of the first evaluation
-                        case BoolValue(false) => List(KDone(BoolValue(false))) // it is false -- short circuit
+                        case BoolValue(false) => List(KDone(BoolValue(false), r, env )) // it is false -- short circuit
                         case BoolValue(true) => List(KEvalExpr(r.getSecond, env)) // it is true, continue on to second
                         case _ => throw new TypeConversionError("Cannot convert non-boolean type to boolean for AND")
                     }))
@@ -92,7 +92,7 @@ object TrampolinedVisualInterpreter {
             case Or(_, _) => {
                 List(KEvalExpr(r.getFirst, env), // First evaluate the first subexpression
                     KFun1({ // case match on the outcome of the first evaluation
-                        case BoolValue(true) => List(KDone(BoolValue(true))) // it is true -- short circuit
+                        case BoolValue(true) => List(KDone(BoolValue(true), r, env )) // it is true -- short circuit
                         case BoolValue(false) => List(KEvalExpr(r.getSecond, env)) // it is false, continue on to second
                         case _ => throw new TypeConversionError("Cannot convert non-boolean type to boolean for OR")
                     }))
@@ -121,7 +121,7 @@ object TrampolinedVisualInterpreter {
             }
 
             case FunDef(name, _) => {
-                List(KDone(VisualClosure(name, r.getFirst, env)))
+                List(KDone(VisualClosure(name, r.getFirst, env), r, env))
             }
 
             case FunCall(_, _) => {
@@ -157,7 +157,7 @@ object TrampolinedVisualInterpreter {
     }
 
     def applyKontinuation (lst: List[Kontinuation]): TrampolineVisualInterpreterState = lst match {
-        case KDone(v)::KFun1 (fun1)::rest => {
+        case KDone(v, _,_)::KFun1 (fun1)::rest => {
             val newList = fun1(v)
             applyKontinuation (newList ++ rest)
         }
@@ -166,7 +166,7 @@ object TrampolinedVisualInterpreter {
             TrampolineInterpreterRunning(r, env, rest)
         }
 
-        case KDone(v)::Nil => {
+        case KDone(v, _,_)::Nil => {
             TrampolineInterpreterDone(v)
         }
 
@@ -176,7 +176,11 @@ object TrampolinedVisualInterpreter {
     def nextState(state: TrampolineVisualInterpreterState): TrampolineVisualInterpreterState = state match {
         case TrampolineInterpreterRunning(r, env, klst) => {
             val newStuff = stepExprWithVisuals(r, env)
-            applyKontinuation (newStuff ++ klst)
+            TrampolineApplyKont(newStuff ++ klst)
+        }
+        case TrampolineApplyKont(lst) => {
+            val newState = applyKontinuation(lst)
+            nextState(newState)
         }
 
         case TrampolineInterpreterDone(v) => TrampolineInterpreterDone(v)
@@ -199,6 +203,33 @@ object TrampolinedVisualInterpreter {
             g.drawString( "ENVIRONMENT: ", 1000, 40)
             EnvironmentRenderUtils.renderEnv(env, g, 1000, 50)
             g.setStroke(stroke)
+        }
+
+        case TrampolineApplyKont(lst) => {
+            if (lst.length >= 1) {
+                lst.head match {
+                    case KDone(v, r, env ) => {
+                        val vStr = s"Value: ${EnvironmentRenderUtils.valueToText(v)}"
+                        val stroke = g.getStroke()
+                        g.setColor(Color.RED)
+                        g.setStroke(new BasicStroke(3))
+                        r.highlight(g)
+                        r.setTextTop(g, vStr)
+                        g.drawString("ENVIRONMENT: ", 1000, 40)
+                        EnvironmentRenderUtils.renderEnv(env, g, 1000, 50)
+                        g.setStroke(stroke)
+                    }
+                    case KEvalExpr(r, env) => {
+                        val stroke = g.getStroke()
+                        g.setColor(Color.RED)
+                        g.setStroke(new BasicStroke(3))
+                        r.highlight(g)
+                        g.drawString("ENVIRONMENT: ", 1000, 40)
+                        EnvironmentRenderUtils.renderEnv(env, g, 1000, 50)
+                        g.setStroke(stroke)
+                    }
+                }
+            }
         }
 
         case TrampolineInterpreterDone(v) => {

@@ -19,6 +19,12 @@ sealed trait VisualAST {
         g.drawRect(xLeft.toInt, yTop.toInt, width.toInt, height.toInt)
     }
 
+    def setTextTop(g: Graphics2D, txt: String) : Unit = {
+        val x = xLeft.toInt + width.toInt -  5 * txt.size
+        val y  =yTop - padding
+        g.drawString(txt, x, y)
+    }
+
     def getFirst: VisualAST = throw new IllegalArgumentException("Cannot be called")
     def getSecond: VisualAST = throw new IllegalArgumentException("Cannot be called")
     def getThird: VisualAST = throw new IllegalArgumentException("Cannot be called")
