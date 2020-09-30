@@ -7,7 +7,7 @@ parse programs written in the Lettuce syntax and help the student step through
 the interpretation and see what the various parts of the program evaluate to as
 we step through.
 
-![Screenshot](https://github.com/sriram0339/LettucePlaygroundScala/tree/master/images)
+![Screenshot](https://github.com/sriram0339/LettucePlaygroundScala/tree/master/images/screenshot-b.png)
 
 ## Run
 
