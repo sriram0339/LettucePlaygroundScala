@@ -159,7 +159,8 @@ object TrampolinedVisualInterpreter {
     def applyKontinuation (lst: List[Kontinuation]): TrampolineVisualInterpreterState = lst match {
         case KDone(v, _,_)::KFun1 (fun1)::rest => {
             val newList = fun1(v)
-            applyKontinuation (newList ++ rest)
+            //applyKontinuation (newList ++ rest)
+            TrampolineApplyKont(newList ++ rest)
         }
 
         case KEvalExpr(r, env) :: rest => {
@@ -179,8 +180,8 @@ object TrampolinedVisualInterpreter {
             TrampolineApplyKont(newStuff ++ klst)
         }
         case TrampolineApplyKont(lst) => {
-            val newState = applyKontinuation(lst)
-            nextState(newState)
+            applyKontinuation(lst)
+            //nextState(newState)
         }
 
         case TrampolineInterpreterDone(v) => TrampolineInterpreterDone(v)
