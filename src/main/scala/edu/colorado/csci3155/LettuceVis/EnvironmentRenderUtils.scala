@@ -14,10 +14,11 @@ object EnvironmentRenderUtils {
     }
 
 
-    def renderEnv(env: LettuceEnvironment, g: Graphics2D, x: Int, y: Int): Unit = {
+    def renderEnv(env: LettuceEnvironment, g: Graphics2D, x0: Int, y: Int): Unit = {
+        val x = x0 + 2* padding
         val (txt, whatsLeft) = env match {
             case EmptyEnvironment => ("NIL", None)
-            case ExtendEnv(x, v, rest) =>  (s"$x -> ${valueToText(v)}", Some(rest))
+            case ExtendEnv(x, v, rest) =>  (s"$x : ${valueToText(v)}", Some(rest))
             case ExtendEnvRec(_, _, _, _) => throw new AssertionError("Cannot handle a ExtendEnvRec in a visual interpreter -- ask Sriram to debug")
             case VisualExtendEnvRec(funName, argName, _, rest) => (s"$funName -> RecursiveFun($argName, ...)", Some(rest))
         }
@@ -30,7 +31,7 @@ object EnvironmentRenderUtils {
         g.drawString(txt, x, y+textHeight)
         whatsLeft match {
             case None => ()
-            case Some(rest) => renderEnv(rest, g, x, y + textHeight + 2 * padding)
+            case Some(rest) => renderEnv(rest, g, x + padding, y + textHeight + 3 * padding)
         }
     }
 

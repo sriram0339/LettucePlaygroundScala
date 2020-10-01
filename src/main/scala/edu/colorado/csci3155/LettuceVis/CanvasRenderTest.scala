@@ -112,10 +112,14 @@ object CanvasRenderTest extends SimpleSwingApplication {
             println("-------")
             println(txt)
             println("---------")
-            val expr = TestPrograms.parseAndInterpretProgram(txt)
-            canvas.setAST(expr)
-            button3.enabled=false
-            canvas.repaint()
+            try {
+                val expr = TestPrograms.parseAndInterpretProgram(txt)
+                canvas.setAST(expr)
+                button3.enabled = false
+                canvas.repaint()
+            } catch {
+                case e => { Dialog.showMessage( contents.head, s"Fatal Exception $e thrown -- cannot parse the program") }
+            }
         }
 
         menuBar = new MenuBar {
@@ -124,7 +128,7 @@ object CanvasRenderTest extends SimpleSwingApplication {
                 textArea.text = TestPrograms.test1()
                 execTextAreaProgram()
             })
-            contents += new MenuItem(Action("Program2"){
+            contents += new MenuItem(Action("LotsOfFun"){
                 //execProgram("Program2", TestPrograms.test2)
                 textArea.text = TestPrograms.test2()
                 execTextAreaProgram()
@@ -134,13 +138,23 @@ object CanvasRenderTest extends SimpleSwingApplication {
                 textArea.text = TestPrograms.test3()
                 execTextAreaProgram()
             })
-            contents += new MenuItem(Action("Program4"){
+            contents += new MenuItem(Action("factorial"){
                 //execProgram("Program4", TestPrograms.test4)
                 textArea.text = TestPrograms.test4()
                 execTextAreaProgram()
             })
 
-            contents += new MenuItem(Action("Program5"){
+            contents += new MenuItem(Action("SquareAway"){
+                textArea.text =
+                  """
+                    |   let square = function (x) x * x in
+                    |      let sq2 = function (x) function (y) square (x + y) in
+                    |         sq2 (20) (-15)
+                  """.stripMargin
+                execTextAreaProgram()
+            })
+
+            contents += new MenuItem(Action("ShadowScopes"){
                 textArea.text =
                     """
                       |let x = 20 in
@@ -169,12 +183,16 @@ object CanvasRenderTest extends SimpleSwingApplication {
             })
 
         }
-        contents = new BoxPanel(Orientation.Vertical) {
-            contents += canvas
-            contents += textArea
+
+        val flowPanel = new FlowPanel(){
             contents += button1
             contents += button2
             contents += button3
+        }
+        contents = new BoxPanel(Orientation.Vertical) {
+            contents += canvas
+            contents += textArea
+            contents += flowPanel
         }
 
         reactions += {
@@ -188,9 +206,13 @@ object CanvasRenderTest extends SimpleSwingApplication {
         reactions += {
             case ButtonClicked(b)  if (b == button2) => {
                     println("--- button 2 pressed -- ")
+                try {
                     canvas.step()
                     canvas.repaint()
                     button3.enabled = true
+                } catch {
+                    case e => { Dialog.showMessage(contents.head, s"Exception : $e thrown while interpreting")}
+                }
                 }
             }
 

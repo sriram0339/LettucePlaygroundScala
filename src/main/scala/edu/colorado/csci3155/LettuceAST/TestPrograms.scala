@@ -52,16 +52,16 @@ object TestPrograms {
 
 
     def parseAndInterpretProgram(s: String): Expr= {
-        val p: Program = new LettuceParser().parseString(s)
-        if (debug) {
-            println("--- Debug --- ")
-            println(p)
-            println("--- Debug ---")
-        }
-        p match {
-            case TopLevel(e) => e
-            case _ => throw new SyntaxError("Could not parse the program -- fatal error")
-        }
+            val p: Program = new LettuceParser().parseString(s)
+            if (debug) {
+                println("--- Debug --- ")
+                println(p)
+                println("--- Debug ---")
+            }
+            p match {
+                case TopLevel(e) => e
+                case _ => throw new SyntaxError("Could not parse the program -- fatal error")
+            }
     }
 }
 
