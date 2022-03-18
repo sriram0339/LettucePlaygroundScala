@@ -71,14 +71,14 @@ object CanvasRenderTest extends SimpleSwingApplication {
     def top = new MainFrame {
         title = "Testing AST visualization"
         val canvas = new DrawingCanvas {
-            preferredSize = new Dimension(1000,500)
+            preferredSize = new Dimension(1000,800)
             background = Color.WHITE
         }
         val textArea = new TextArea("Program"){
             editable = true
             name = "Test # 1"
             text = TestPrograms.test1()
-            preferredSize = new Dimension(250, 200)
+            preferredSize = new Dimension(250, 100)
             font = new Font("Helvetica", Font.PLAIN, 20)
             border = Swing.LineBorder(Color.BLACK)
         }
@@ -94,6 +94,12 @@ object CanvasRenderTest extends SimpleSwingApplication {
             enabled = false
             tooltip = "Click and See"
         }
+        val button4 = new Button {
+            text = "STEP+10>"
+            borderPainted = true
+            enabled = false
+            tooltip = "Click and See"
+        }
         val button3 = new Button {
             text = "<BACK"
             borderPainted = true
@@ -104,6 +110,7 @@ object CanvasRenderTest extends SimpleSwingApplication {
         listenTo(button1)
         listenTo(button2)
         listenTo(button3)
+        listenTo(button4)
 
 
 
@@ -144,6 +151,11 @@ object CanvasRenderTest extends SimpleSwingApplication {
                 execTextAreaProgram()
             })
 
+            contents += new MenuItem(Action("yCombinator"){
+                //execProgram("Program4", TestPrograms.test4)
+                textArea.text = TestPrograms.yCombTest()
+                execTextAreaProgram()
+            })
             contents += new MenuItem(Action("SquareAway"){
                 textArea.text =
                   """
@@ -187,6 +199,7 @@ object CanvasRenderTest extends SimpleSwingApplication {
         val flowPanel = new FlowPanel(){
             contents += button1
             contents += button2
+            contents += button4
             contents += button3
         }
         contents = new BoxPanel(Orientation.Vertical) {
@@ -200,6 +213,7 @@ object CanvasRenderTest extends SimpleSwingApplication {
 
                 execTextAreaProgram()
                 button2.enabled = true
+                button4.enabled = true
 
             }
         }
@@ -215,6 +229,29 @@ object CanvasRenderTest extends SimpleSwingApplication {
                 }
                 }
             }
+
+        reactions += {
+            case ButtonClicked(b)  if (b == button4) => {
+                println("--- button 4 pressed -- ")
+                try {
+                    canvas.step()
+                    canvas.step()
+                    canvas.step()
+                    canvas.step()
+                    canvas.step()
+                    canvas.step()
+                    canvas.step()
+                    canvas.step()
+                    canvas.step()
+                    canvas.step()
+                    canvas.repaint()
+                    button4.enabled = true
+                    button3.enabled = true
+                } catch {
+                    case e => { Dialog.showMessage(contents.head, s"Exception : $e thrown while interpreting")}
+                }
+            }
+        }
 
         reactions +=  {
             case ButtonClicked(b)  if (b == button3) => {

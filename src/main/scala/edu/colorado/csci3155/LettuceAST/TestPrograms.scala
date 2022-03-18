@@ -49,6 +49,19 @@ object TestPrograms {
         """.stripMargin
     }
 
+    def yCombTest(): String = {
+        """
+          |let Y = function (f)  (
+          |             let f1 = function (g) ( f ( function (v) ( g(g)(v) )  )  ) in
+          |             let f2 = function(g) ( f ( function(v) g(g)(v) ) ) in
+          |               f1(f2)
+          |              ) in
+          |   let F = function (f) ( function(x) ( if (x == 0) then 1 else x * f(x-1) ) ) in
+          |        Y(F)(3)
+          |
+          |""".stripMargin
+    }
+
 
 
     def parseAndInterpretProgram(s: String): Expr= {
@@ -63,5 +76,7 @@ object TestPrograms {
                 case _ => throw new SyntaxError("Could not parse the program -- fatal error")
             }
     }
+
+
 }
 
