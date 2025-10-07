@@ -2,7 +2,8 @@ name := "LettuceVisualInterpreter"
 
 version := "0.1"
 
-scalaVersion := "2.12.7"
+scalaVersion := "3.3.6"
 
-libraryDependencies += "org.scala-lang.modules" %% "scala-parser-combinators" %"1.1.1"
-libraryDependencies += "org.scala-lang.modules" %% "scala-swing" % "2.0.3"
+libraryDependencies += "org.scala-lang.modules" %% "scala-parser-combinators" %"2.3.0"
+libraryDependencies += "org.scala-lang.modules" %% "scala-swing" % "3.0.0"
+

@@ -220,13 +220,13 @@ object CanvasRenderTest extends SimpleSwingApplication {
         reactions += {
             case ButtonClicked(b)  if (b == button2) => {
                     println("--- button 2 pressed -- ")
-                try {
-                    canvas.step()
-                    canvas.repaint()
-                    button3.enabled = true
-                } catch {
-                    case e => { Dialog.showMessage(contents.head, s"Exception : $e thrown while interpreting")}
-                }
+                    try {
+                        canvas.step()
+                        canvas.repaint()
+                        button3.enabled = true
+                    } catch {
+                        case e => { Dialog.showMessage(contents.head, s"Exception : $e thrown while interpreting")}
+                    }
                 }
             }
 
