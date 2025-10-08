@@ -37,7 +37,7 @@ We use a trampolined CEK interpreter was inspired by a summer PhD reading of thi
 
 ## Author
   
-  This code was authored by <a href="https://www.cs.colorado.edu/~srirams> Sriram Sankaranarayanan</a> and distributed under
+  This code was authored by  [Sriram Sankaranarayanan](https://www.cs.colorado.edu/~srirams) and distributed under
   the GPLV3 license.  Questions and comments can be sent directly to Sriram.
   
   
