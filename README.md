@@ -24,8 +24,7 @@ Currently, this is setup to run under
 
 Slightly older versions of sbt and scala may also work.
 
-Alternatively, you can import it into your IDE such as IntelliJ with scala plugin or VSCode with Metals as a SBT project and lanuch it from there.
-
+Alternatively, you can import it into your IDE such as IntelliJ with scala plugin or VSCode with Metals as a SBT project and lanuch it from there. Pressing the run/debug button in the IDE. In VSCode you can try Menu -> Run -> Run Without Debugging.
 
 
 ## Note
